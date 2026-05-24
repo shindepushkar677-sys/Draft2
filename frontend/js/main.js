@@ -10,6 +10,44 @@
   const filterBar = document.querySelector('[data-filter-bar], .works-filter-bar');
   const featuredOnly = document.body.dataset.page === 'home';
   const isGithubPages = window.location.hostname.endsWith('github.io');
+  const workInsights = [
+    {
+      category: 'Wall Murals',
+      className: 'insight-card-murals',
+      points: [
+        ['Statement Pieces', 'Transform plain walls into visually striking focal points.'],
+        ['Tailored Designs', 'Flexible themes, styles, colours, and compositions to suit the space.'],
+        ['Made to Last', 'Professionally executed finishes with long-term durability.']
+      ]
+    },
+    {
+      category: 'Canvas Paintings',
+      className: 'insight-card-canvas',
+      points: [
+        ['Standalone Presence', 'Creates depth and a distinct visual impact.'],
+        ['Portable', 'Lightweight and easy to move or reposition.'],
+        ['Versatile Sizes', 'Available in multiple sizes for different spaces.']
+      ]
+    },
+    {
+      category: 'Texture Art',
+      className: 'insight-card-texture',
+      points: [
+        ['Depth & Dimension', 'Layered finishes create a rich tactile effect.'],
+        ['Elegant Light Play', 'Enhances shadows and highlights beautifully.'],
+        ['Durable', 'Long-lasting when professionally executed.']
+      ]
+    },
+    {
+      category: 'Wardrobes',
+      className: 'insight-card-wardrobes',
+      points: [
+        ['Custom Surfaces', 'Painted details turn everyday storage into a designed feature.'],
+        ['Room-Led Design', 'Colours, motifs, and finishes can be matched to the surrounding space.'],
+        ['Functional Finish', 'Decorative work is planned around surfaces that are used every day.']
+      ]
+    }
+  ];
 
   document.addEventListener('DOMContentLoaded', () => {
     initPageTransitions();
@@ -128,7 +166,7 @@
   async function loadWorks() {
     try {
       if (isGithubPages) {
-        const works = getGithubPagesWorks();
+        const works = getBundledWorks();
         const visibleWorks = featuredOnly ? works.slice(0, 8) : works;
         renderFilters(works);
         renderWorks(visibleWorks);
@@ -141,99 +179,34 @@
         throw new Error('Failed to fetch artworks.');
       }
 
-      const works = await response.json();
+      const works = mergeBundledCanvasWorks(await response.json());
       const visibleWorks = featuredOnly ? works.slice(0, 8) : works;
 
       renderFilters(works);
       renderWorks(visibleWorks);
     } catch (error) {
-      worksGrid.innerHTML = '<p class="empty-state">Artworks could not be loaded. Please try again soon.</p>';
+      const works = getBundledWorks();
+      const visibleWorks = featuredOnly ? works.slice(0, 8) : works;
+      renderFilters(works);
+      renderWorks(visibleWorks);
     }
   }
 
-  /* Insight card content keyed by category (lowercase, matches data-filter values) */
-  const INSIGHT_DATA = {
-    'wall murals': {
-      kicker: 'Wall Murals',
-      modifier: 'insight-card-murals',
-      points: [
-        'Large-scale artworks created directly on walls to enhance spaces and create striking feature walls.',
-        'Highly customizable in terms of theme, style, color palette, and scale.',
-        'Seamlessly integrates with the architecture and overall character of the environment.',
-        'Durable and long-lasting when professionally executed, unlike wallpapers that may peel, fade, or wear over time.'
-      ]
-    },
-    'canvas paintings': {
-      kicker: 'Canvas Paintings',
-      modifier: 'insight-card-canvas',
-      points: [
-        'Artwork created on stretched woven fabric, typically cotton or linen, using mediums like acrylic, oil, or watercolor.',
-        'Lightweight and portable.',
-        'Available in a wide range of sizes to suit different spaces and styles.',
-        'Creates a distinct standalone visual impact, giving artwork depth and presence away from the wall.'
-      ]
-    },
-    'texture art': {
-      kicker: 'Texture Art',
-      modifier: 'insight-card-texture',
-      points: [
-        'Texture art uses layered materials and techniques to create depth and dimension on surfaces.',
-        'Creates elegant light and shadow effects, adding visual depth.',
-        'Durable and long-lasting when professionally executed.',
-        'Creates a sophisticated alternative to flat wall finishes.'
-      ]
-    }
-  };
-
-  function renderInsightCard(category) {
-    const insightsContainer = document.querySelector('[data-insights-container]');
-
-    if (!insightsContainer) {
-      return;
-    }
-
-    const data = INSIGHT_DATA[category];
-
-    if (!data) {
-      /* No matching insight (e.g. "All" or a category without an insight card) */
-      insightsContainer.innerHTML = '';
-      insightsContainer.hidden = true;
-      return;
-    }
-
-    const listItems = data.points
-      .map((point) => `<li>${escapeHtml(point)}</li>`)
-      .join('');
-
-    /* Replace — never append — so there is always exactly one card */
-    insightsContainer.innerHTML = `
-      <div class="work-insights-grid">
-        <article class="insight-card ${escapeHtml(data.modifier)} reveal">
-          <span class="insight-kicker">${escapeHtml(data.kicker)}</span>
-          <ul>${listItems}</ul>
-        </article>
-      </div>`;
-
-    insightsContainer.hidden = false;
-    initScrollReveal();
-  }
 
   function renderFilters(works) {
     if (!filterBar || featuredOnly) {
       return;
     }
 
-    const categories = ['All', ...new Set(works.map((work) => work.category).filter(Boolean))];
+    const categories = getOrderedCategories(works);
 
     filterBar.innerHTML = categories
       .map((category, index) => {
         const activeClass = index === 0 ? 'active is-active' : '';
-        return `<button class="filter-btn ${activeClass}" type="button" data-filter="${escapeHtml(category.toLowerCase())}">${escapeHtml(category)}</button>`;
+        return `<button class="filter-btn ${activeClass}" type="button" data-filter="${escapeHtml(normalizeCategory(category))}">${escapeHtml(category)}</button>`;
       })
       .join('');
 
-    /* Ensure the insights container starts empty/hidden — no static cards to hide */
-    renderInsightCard('all');
 
     filterBar.addEventListener('click', (event) => {
       const button = event.target.closest('.filter-btn');
@@ -242,18 +215,9 @@
         return;
       }
 
-      document.querySelectorAll('.filter-btn').forEach((filterButton) => filterButton.classList.remove('active', 'is-active'));
+      filterBar.querySelectorAll('.filter-btn').forEach((filterButton) => filterButton.classList.remove('active', 'is-active'));
       button.classList.add('active', 'is-active');
-
-      const category = button.dataset.filter;
-
-      worksGrid.querySelectorAll('.work-card').forEach((card) => {
-        const match = category === 'all' || card.dataset.category === category;
-        card.style.display = match ? '' : 'none';
-      });
-
-      /* Replace the insight section with exactly one matching card (or nothing) */
-      renderInsightCard(category === 'all' ? 'all' : category);
+      setActiveWorkSection(button.dataset.filter);
     });
   }
 
@@ -263,28 +227,112 @@
       return;
     }
 
-    worksGrid.innerHTML = works
-      .map((work, index) => {
-        const category = String(work.category || 'All');
-        const imageUrl = work.imageUrl || work.image || '';
-        const title = work.title || 'Untitled';
-        const year = work.year || '';
+    if (featuredOnly) {
+      worksGrid.innerHTML = works.map((work, index) => renderWorkCard(work, index)).join('');
+      initScrollReveal();
+      initWorkLightbox();
+      return;
+    }
+
+    worksGrid.innerHTML = getOrderedCategories(works)
+      .map((category) => {
+        const insight = getInsightForCategory(category);
+        const categoryWorks = works.filter((work) => normalizeCategory(work.category) === normalizeCategory(category));
+
+        if (!categoryWorks.length) {
+          return '';
+        }
 
         return `
-          <article class="work-card reveal" tabindex="0" role="button" aria-label="Open ${escapeHtml(title)}" data-category="${escapeHtml(category.toLowerCase())}" data-image="${escapeHtml(imageUrl)}" data-title="${escapeHtml(title)}" data-meta="${escapeHtml(`${category} | ${year}`)}" style="transition-delay:${index * 0.06}s">
-            <img src="${imageUrl}" alt="${escapeHtml(title)}" loading="lazy">
-            <div class="work-card-overlay">
-              <div class="work-card-title">${escapeHtml(title)}</div>
-              <div class="work-card-cat">${escapeHtml(category)} | ${escapeHtml(year)}</div>
+          <section class="work-category-section reveal" data-work-section="${escapeHtml(normalizeCategory(category))}">
+            <div class="work-section-top">
+              <div class="work-section-title-block">
+                <h2 class="work-section-title">${escapeHtml(category)}</h2>
+                <div class="work-motion-field" aria-hidden="true">
+                  <span class="paint-sweep paint-sweep-one"></span>
+                  <span class="paint-sweep paint-sweep-two"></span>
+                  <span class="paint-sweep paint-sweep-three"></span>
+                  <span class="paint-dot paint-dot-one"></span>
+                  <span class="paint-dot paint-dot-two"></span>
+                  <span class="line-trace line-trace-one"></span>
+                  <span class="line-trace line-trace-two"></span>
+                </div>
+              </div>
+              ${insight ? renderInsightCard(insight) : ''}
             </div>
-            <button class="work-card-arrow" type="button" aria-label="Open ${escapeHtml(title)}">↗</button>
-          </article>
+            <div class="work-section-grid">
+              ${categoryWorks.map((work, index) => renderWorkCard(work, index)).join('')}
+            </div>
+          </section>
         `;
       })
       .join('');
 
     initScrollReveal();
     initWorkLightbox();
+    setActiveWorkSection(getOrderedCategories(works)[0]);
+  }
+
+  function setActiveWorkSection(category) {
+    const activeCategory = normalizeCategory(category);
+
+    worksGrid.querySelectorAll('[data-work-section]').forEach((section) => {
+      section.classList.toggle('is-hidden', section.dataset.workSection !== activeCategory);
+    });
+  }
+
+  function renderWorkCard(work, index) {
+    const category = String(work.category || 'Artwork');
+    const imageUrl = work.imageUrl || work.image || '';
+    const title = work.title || 'Untitled';
+    const year = work.year || '';
+    const meta = year ? `${category} | ${year}` : category;
+
+    return `
+      <article class="work-card reveal" tabindex="0" role="button" aria-label="Open ${escapeHtml(title)}" data-category="${escapeHtml(category.toLowerCase())}" data-image="${escapeHtml(imageUrl)}" data-title="${escapeHtml(title)}" data-meta="${escapeHtml(meta)}" style="transition-delay:${index * 0.04}s">
+        <img src="${escapeHtml(imageUrl)}" alt="${escapeHtml(title)}" loading="lazy">
+        <div class="work-card-overlay">
+          <div class="work-card-title">${escapeHtml(title)}</div>
+          <div class="work-card-cat">${escapeHtml(meta)}</div>
+        </div>
+        <button class="work-card-arrow" type="button" aria-label="Open ${escapeHtml(title)}">&#8599;</button>
+      </article>
+    `;
+  }
+
+  function renderInsightCard(insight) {
+    return `
+      <article class="insight-card ${escapeHtml(insight.className)}">
+        <span class="insight-kicker">${escapeHtml(insight.category)}</span>
+        <ul>
+          ${insight.points.map(([title, text]) => `<li><strong>${escapeHtml(title)}</strong><span>${escapeHtml(text)}</span></li>`).join('')}
+        </ul>
+      </article>
+    `;
+  }
+
+  function normalizeCategory(category) {
+    return String(category || '').trim().toLowerCase();
+  }
+
+  function getOrderedCategories(works) {
+    const preferredOrder = ['Wall Murals', 'Canvas Paintings', 'Texture Art', 'Wardrobes'];
+    const available = new Set(works.map((work) => work.category).filter(Boolean));
+    const ordered = preferredOrder.filter((category) => available.has(category));
+    const remaining = [...available].filter((category) => !preferredOrder.includes(category));
+
+    return [...ordered, ...remaining];
+  }
+
+  function getInsightForCategory(category) {
+    return workInsights.find((insight) => normalizeCategory(insight.category) === normalizeCategory(category));
+  }
+
+  function mergeBundledCanvasWorks(works) {
+    const list = Array.isArray(works) ? works.slice() : [];
+    const hasCanvas = list.some((work) => normalizeCategory(work.category) === 'canvas paintings');
+
+    return hasCanvas ? list : [...list, ...getCanvasWorks()];
   }
 
   function initWorkLightbox() {
@@ -408,7 +456,7 @@
     }, { passive: true });
   }
 
-  function getGithubPagesWorks() {
+  function getBundledWorks() {
     return [
       {
         _id: 'texture-01',
@@ -445,6 +493,7 @@
         year: 2026,
         imageUrl: 'assets/works/texture-art-05.jpeg'
       },
+      ...getCanvasWorks(),
       {
         _id: 'mural-01',
         title: 'Wall Mural Study 01',
@@ -614,6 +663,20 @@
         imageUrl: 'assets/works/wardrobe-09.jpeg'
       }
     ];
+  }
+
+  function getCanvasWorks() {
+    return Array.from({ length: 10 }, (_, index) => {
+      const number = String(index + 1).padStart(2, '0');
+
+      return {
+        _id: `canvas-${number}`,
+        title: `Canvas Painting Study ${number}`,
+        category: 'Canvas Paintings',
+        year: 2026,
+        imageUrl: `assets/works/canvas-painting-${number}.jpeg`
+      };
+    });
   }
 
   function createArtworkSvg(palette) {
