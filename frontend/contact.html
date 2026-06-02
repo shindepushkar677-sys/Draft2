@@ -1,6 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+   <link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+/>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Contact | Rachanatmak</title>
@@ -10,7 +14,26 @@
   <div class="page-transition-overlay"></div>
 
   <nav class="navbar">
-    <a class="navbar-logo" href="index.html" aria-label="Rachanatmak home">रचनात्मक</a>
+    <div class="navbar-brand">
+
+  <a
+    class="navbar-logo"
+    href="index.html"
+    aria-label="Rachanatmak home"
+  >
+
+    <img
+      src="./assets/works/logo.png"
+      alt="Rachanatmak Logo"
+    >
+
+  </a>
+
+  <span class="navbar-right">
+    STUDIO · PUNE
+  </span>
+
+</div>
     <div class="navbar-links">
       <a href="index.html">Home</a>
       <a href="works.html">Works</a>
@@ -32,28 +55,53 @@
 
   <main>
     <section class="contact-section">
-      <div class="contact-left">
-        <h1 class="contact-heading reveal">Let's<br>talk.</h1>
-        <div class="contact-info reveal">
-          <div class="contact-info-item">
-            <span class="contact-info-label">Name</span>
-            <span class="contact-info-value">Rachana U. Shirkande</span>
-          </div>
-          <div class="contact-info-item">
-            <span class="contact-info-label">Phone</span>
-            <span class="contact-info-value"><a href="tel:+918275223989">+91 82752 23989</a></span>
-          </div>
-          <div class="contact-info-item">
-            <span class="contact-info-label">Email</span>
-            <span class="contact-info-value"><a href="mailto:rachanashirkande28@gmail.com">rachanashirkande28@gmail.com</a></span>
-          </div>
-        </div>
-        <div class="contact-services-list reveal">
-          <div class="contact-service-item">Wall Murals</div>
-          <div class="contact-service-item">Textured Arts</div>
-          <div class="contact-service-item">Canvas Paintings</div>
-        </div>
-      </div>
+  <div class="contact-left">
+
+  <h1 class="contact-heading reveal"></h1>
+  <div class="contact-logo-large reveal">
+
+  <img
+    src="./assets/works/orange-logo.png"
+    alt="Rachanatmak Logo"
+  >
+
+</div>
+
+  <div class="contact-info reveal">
+
+    <div class="contact-info-item">
+      <span class="contact-info-value">
+        Rachana U. Shirkande
+      </span>
+    </div>
+
+    <div class="contact-info-item">
+      <span class="contact-info-value">
+        <a href="tel:+918275223989">
+          +91 82752 23989
+        </a>
+      </span>
+    </div>
+
+    <div class="contact-info-item">
+      <span class="contact-info-value">
+        <a href="mailto:rachanashirkande28@gmail.com">
+          rachanashirkande28@gmail.com
+        </a>
+        
+  </div>
+  
+        <div class="contact-info-value location-text">
+  Kothrud, Pune
+</div>
+      </span>
+    </div>
+
+  </div>
+
+  </div>
+
+</div>
 
       <div class="contact-right">
         <form class="contact-form reveal" data-contact-form>
@@ -62,23 +110,32 @@
               <label class="form-label" for="name">Name</label>
               <input class="form-input" id="name" name="name" type="text" placeholder="Your name" autocomplete="name" required>
             </div>
-            <div class="form-group">
-              <label class="form-label" for="email">Email</label>
-              <input class="form-input" id="email" name="email" type="email" placeholder="your@email.com" autocomplete="email" required>
-            </div>
-          </div>
           <div class="form-row">
             <div class="form-group">
               <label class="form-label" for="phone">Phone</label>
               <input class="form-input" id="phone" name="phone" type="tel" placeholder="+91 XXXXX XXXXX" autocomplete="tel">
             </div>
+          </div>
+
+            <div class="form-group">
+  <label class="form-label" for="city">City</label>
+
+  <input
+    class="form-input"
+    id="city"
+    name="city"
+    type="text"
+    placeholder="Your city"
+  >
+</div>
             <div class="form-group">
               <label class="form-label" for="service">Service</label>
               <select class="form-select" id="service" name="service" data-service-select>
                 <option value="">Select a service</option>
                 <option value="wall-murals">Wall Murals</option>
-                <option value="textured-arts">Textured Arts</option>
-                <option value="canvas-paintings">Canvas Paintings</option>
+                <option value="wardrobe-art">Wardrobe Art</option>
+                <option value="textured-arts">Textured Art</option>
+                <option value="canvas-paintings">Canvas Painting</option>
               </select>
             </div>
           </div>
@@ -94,8 +151,10 @@
             </select>
           </div>
           <div class="form-group">
+</div>
+          <div class="form-group">
             <label class="form-label" for="message">Message</label>
-            <textarea class="form-textarea" id="message" name="message" placeholder="Tell us about your project..." required></textarea>
+            <textarea class="form-textarea" id="message" name="message" placeholder="I’m looking for a textured mural for my living room wall in Pune. The wall size is approximately 12x8 ft and I prefer warm earthy tones with a modern abstract style. Sharing a few reference images for inspiration." required></textarea>
           </div>
           <button class="form-submit" type="submit">Send Message <span>→</span></button>
           <p class="form-submit-status" data-contact-status></p>
@@ -120,12 +179,18 @@
     <div class="footer-inner">
       <div class="footer-top">
         <div class="footer-logo-block">
-          <div class="footer-logo">रचनात्मक</div>
+
+  <div class="footer-logo">
+
+    <img
+      src="./assets/works/logo.png"
+      alt="Rachanatmak Logo"
+    >
+
+  </div>
+
           <p class="footer-tagline">Studio · Pune</p>
           <div class="footer-services-list">
-            <span>Residential</span>
-            <span>Commercial</span>
-            <span>Corporate</span>
           </div>
         </div>
         <div class="footer-col">
@@ -135,6 +200,25 @@
             <a href="tel:+918275223989">+91 82752 23989</a><br>
             <a href="mailto:rachanashirkande28@gmail.com">rachanashirkande28@gmail.com</a>
           </address>
+          <div class="footer-socials">
+
+  <a
+    href="https://instagram.com/rachanashirkande?igshid=YmMyMTA2M2Y="
+    target="_blank"
+    aria-label="Instagram"
+  >
+    <i class="fab fa-instagram"></i>
+  </a>
+
+  <a
+    href="https://www.facebook.com/rachna.s.3979?mibextid=LQQJ4d"
+    target="_blank"
+    aria-label="Facebook"
+  >
+    <i class="fab fa-facebook-f"></i>
+  </a>
+
+</div>
         </div>
         <div class="footer-col">
           <h4>Navigate</h4>

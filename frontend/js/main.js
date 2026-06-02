@@ -14,6 +14,7 @@
     {
       category: 'Wall Murals',
       className: 'insight-card-murals',
+      video: 'assets/works/Wall-murals-bg.mp4',
       points: [
         ['Statement Pieces', 'Transform plain walls into visually striking focal points.'],
         ['Tailored Designs', 'Flexible themes, styles, colours, and compositions to suit the space.'],
@@ -23,6 +24,7 @@
     {
       category: 'Canvas Paintings',
       className: 'insight-card-canvas',
+      video: 'assets/works/Canvas-paintings-bg.mp4',
       points: [
         ['Standalone Presence', 'Creates depth and a distinct visual impact.'],
         ['Portable', 'Lightweight and easy to move or reposition.'],
@@ -32,6 +34,7 @@
     {
       category: 'Texture Art',
       className: 'insight-card-texture',
+      video: 'assets/works/Texture-art-bg.mp4',
       points: [
         ['Depth & Dimension', 'Layered finishes create a rich tactile effect.'],
         ['Elegant Light Play', 'Enhances shadows and highlights beautifully.'],
@@ -41,6 +44,7 @@
     {
       category: 'Wardrobes',
       className: 'insight-card-wardrobes',
+      video: 'assets/works/Wadrobe-bg.mp4',
       points: [
         ['Custom Surfaces', 'Painted details turn everyday storage into a designed feature.'],
         ['Room-Led Design', 'Colours, motifs, and finishes can be matched to the surrounding space.'],
@@ -244,22 +248,25 @@
         }
 
         return `
-          <section class="work-category-section reveal" data-work-section="${escapeHtml(normalizeCategory(category))}">
-            <div class="work-section-top">
-              <div class="work-section-title-block">
-                <h2 class="work-section-title">${escapeHtml(category)}</h2>
-                <div class="work-motion-field" aria-hidden="true">
-                  <span class="paint-sweep paint-sweep-one"></span>
-                  <span class="paint-sweep paint-sweep-two"></span>
-                  <span class="paint-sweep paint-sweep-three"></span>
-                  <span class="paint-dot paint-dot-one"></span>
-                  <span class="paint-dot paint-dot-two"></span>
-                  <span class="line-trace line-trace-one"></span>
-                  <span class="line-trace line-trace-two"></span>
-                </div>
-              </div>
-              ${insight ? renderInsightCard(insight) : ''}
-            </div>
+         <section class="work-category-section reveal ${escapeHtml(normalizeCategory(category).replace(/\s+/g, '-'))}"
+         data-work-section="${escapeHtml(normalizeCategory(category))}">
+         <div class="work-section-top">
+
+  ${insight?.video ? `
+    <video
+      class="section-bg-video"
+      autoplay
+      muted
+      loop
+      playsinline
+    >
+      <source src="${insight.video}" type="video/mp4">
+    </video>
+  ` : ''}
+
+  ${insight ? renderInsightCard(insight) : ''}
+
+</div>
             <div class="work-section-grid">
               ${categoryWorks.map((work, index) => renderWorkCard(work, index)).join('')}
             </div>
@@ -303,7 +310,7 @@
   function renderInsightCard(insight) {
     return `
       <article class="insight-card ${escapeHtml(insight.className)}">
-        <span class="insight-kicker">${escapeHtml(insight.category)}</span>
+        <!-- title removed -->
         <ul>
           ${insight.points.map(([title, text]) => `<li><strong>${escapeHtml(title)}</strong><span>${escapeHtml(text)}</span></li>`).join('')}
         </ul>
