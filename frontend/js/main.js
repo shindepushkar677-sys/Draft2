@@ -732,3 +732,23 @@ document.querySelectorAll('video').forEach(video => {
   video.muted = true;
   video.play().catch(() => {});
 });
+document.querySelectorAll('video').forEach(video => {
+  video.muted = true;
+  video.defaultMuted = true;
+
+  const playPromise = video.play();
+
+  if (playPromise !== undefined) {
+    playPromise.catch(() => {});
+  }
+});
+window.addEventListener('load', () => {
+  document.querySelectorAll('video').forEach(video => {
+    video.muted = true;
+    video.defaultMuted = true;
+
+    video.play().catch(err => {
+      console.log('Autoplay blocked:', err);
+    });
+  });
+});
